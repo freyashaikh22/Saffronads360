@@ -1,0 +1,1533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Saffronads360</title>
+<style>
+  :root{
+    --orange:#fc9700;
+    --orange-dark:#d97e00;
+    --cream:#FFF8EF;
+    --cream-deep:#FBEFDC;
+    --ink:#2B1C10;
+    --ink-soft:#6b5d52;
+    --line:#EFE1CC;
+    --green:#3C8A4C;
+    --green-bg:#E7F4EA;
+    --yellow:#B8860B;
+    --yellow-bg:#FDF3D8;
+    --clarify:#C1601A;
+    --clarify-bg:#FCE9D9;
+    --red:#C0392B;
+    --red-bg:#FBE3E0;
+    --white:#FFFFFF;
+    --radius:14px;
+    --shadow:0 2px 10px rgba(43,28,16,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+  #app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--cream);position:relative;display:flex;flex-direction:column;}
+  .hidden{display:none !important;}
+
+  /* ---- top bar ---- */
+  .topbar{
+    background:var(--white);
+    padding:18px 20px 14px;
+    border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:10;
+  }
+  .brand-row{display:flex;align-items:center;justify-content:space-between;}
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand-mark{
+    width:36px;height:36px;border-radius:10px;
+    background:linear-gradient(135deg,var(--orange),var(--orange-dark));
+    display:flex;align-items:center;justify-content:center;
+    color:white;font-weight:800;font-size:15px;letter-spacing:-0.5px;
+    box-shadow:0 3px 8px rgba(252,151,0,0.35);
+  }
+  .brand-name{font-weight:800;font-size:17px;letter-spacing:-0.3px;}
+  .brand-name span{color:var(--orange);}
+  .role-pill{
+    font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;
+    background:var(--cream-deep);color:var(--orange-dark);text-transform:uppercase;letter-spacing:0.5px;
+  }
+  .logout-link{font-size:12px;color:var(--ink-soft);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;margin-top:8px;}
+
+  /* ---- bottom nav ---- */
+  .navbar{
+    position:sticky;bottom:0;background:var(--white);
+    border-top:1px solid var(--line);
+    display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+    z-index:10;
+  }
+  .navbtn{
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;
+    background:none;border:none;padding:8px 2px;cursor:pointer;
+    color:var(--ink-soft);font-size:10.5px;font-weight:600;border-radius:10px;
+  }
+  .navbtn .ic{font-size:19px;line-height:1;}
+  .navbtn.active{color:var(--orange-dark);background:var(--cream-deep);}
+
+  .screen{flex:1;padding:18px 18px 90px;overflow-y:auto;}
+
+  h2.page-title{font-size:19px;margin:2px 0 16px;font-weight:800;letter-spacing:-0.3px;}
+  .card{
+    background:var(--white);border-radius:var(--radius);padding:16px;
+    box-shadow:var(--shadow);margin-bottom:14px;border:1px solid var(--line);
+  }
+  .muted{color:var(--ink-soft);font-size:12.5px;}
+  .btn{
+    background:var(--orange);color:white;border:none;border-radius:11px;
+    padding:13px 18px;font-weight:700;font-size:14.5px;cursor:pointer;width:100%;
+    box-shadow:0 3px 10px rgba(252,151,0,0.3);
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn.secondary{background:var(--white);color:var(--orange-dark);border:1.5px solid var(--orange);box-shadow:none;}
+  .btn.ghost{background:transparent;color:var(--ink-soft);border:1px solid var(--line);box-shadow:none;font-weight:600;}
+  .btn.danger{background:var(--red);}
+  .btn.small{padding:8px 12px;font-size:12.5px;width:auto;}
+  input,select,textarea{
+    width:100%;padding:11px 12px;border-radius:10px;border:1.5px solid var(--line);
+    font-size:14px;background:var(--white);color:var(--ink);font-family:inherit;
+  }
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--orange);}
+  label.field-label{font-size:12px;font-weight:700;color:var(--ink-soft);display:block;margin:12px 0 6px;text-transform:uppercase;letter-spacing:0.3px;}
+  label.field-label:first-child{margin-top:0;}
+
+  .tag{
+    display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;
+  }
+  .tag.present{background:var(--green-bg);color:var(--green);}
+  .tag.late{background:var(--yellow-bg);color:var(--yellow);}
+  .tag.early_departure{background:var(--yellow-bg);color:var(--yellow);}
+  .tag.late_early{background:var(--yellow-bg);color:var(--yellow);}
+  .tag.pending_clarification,.tag.half_day_exception{background:var(--clarify-bg);color:var(--clarify);}
+  .tag.half_day_present{background:#E6E1FC;color:#5B4CC4;}
+  .tag.loss_of_pay{background:var(--red-bg);color:var(--red);}
+  .tag.pending{background:var(--yellow-bg);color:var(--yellow);}
+  .tag.approved{background:var(--green-bg);color:var(--green);}
+  .tag.rejected{background:var(--red-bg);color:var(--red);}
+  .tag.policy{background:var(--cream-deep);color:var(--orange-dark);}
+
+  /* dashboard */
+  .clock-card{text-align:center;padding:26px 16px;}
+  .ring-wrap{position:relative;width:150px;height:150px;margin:6px auto 14px;}
+  .ring-wrap svg{transform:rotate(-90deg);}
+  .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ring-center .big{font-size:22px;font-weight:800;}
+  .ring-center .small{font-size:11px;color:var(--ink-soft);margin-top:2px;}
+  .off-toggle{
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    background:var(--cream-deep);border-radius:10px;padding:9px 12px;margin-bottom:14px;font-size:13px;font-weight:600;color:var(--orange-dark);cursor:pointer;
+  }
+  .off-toggle input{width:auto;}
+  .balance-row{display:flex;gap:10px;margin-bottom:14px;}
+  .balance-card{flex:1;background:var(--white);border-radius:12px;padding:14px 8px;text-align:center;box-shadow:var(--shadow);border:1px solid var(--line);}
+  .balance-card .num{font-size:22px;font-weight:800;color:var(--orange-dark);}
+  .balance-card .lab{font-size:10.5px;color:var(--ink-soft);font-weight:700;margin-top:2px;text-transform:uppercase;}
+
+  .tabs{display:flex;gap:6px;margin-bottom:16px;background:var(--cream-deep);padding:4px;border-radius:12px;}
+  .tabbtn{flex:1;padding:9px;border:none;background:transparent;border-radius:9px;font-weight:700;font-size:13px;color:var(--ink-soft);cursor:pointer;}
+  .tabbtn.active{background:var(--white);color:var(--orange-dark);box-shadow:var(--shadow);}
+
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
+  .cal-head{font-size:10px;text-align:center;color:var(--ink-soft);font-weight:700;padding-bottom:4px;}
+  .cal-day{
+    aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid transparent;min-height:44px;
+  }
+  .cal-day.empty{visibility:hidden;}
+  .cal-day.present{background:var(--green-bg);color:var(--green);}
+  .cal-day.late,.cal-day.early_departure,.cal-day.late_early{background:var(--yellow-bg);color:var(--yellow);}
+  .cal-day.pending_clarification,.cal-day.half_day_exception{background:var(--clarify-bg);color:var(--clarify);}
+  .cal-day.loss_of_pay{background:var(--red-bg);color:var(--red);}
+  .cal-day.leave{background:#E6E1FC;color:#5B4CC4;}
+  .cal-day.holiday{background:#DCEEF7;color:#1F6E8C;}
+  .cal-day.none{background:var(--cream-deep);color:#C9BBA3;}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;font-size:10.5px;color:var(--ink-soft);}
+  .legend span{display:flex;align-items:center;gap:4px;}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
+
+  .list-item{padding:12px 0;border-bottom:1px solid var(--line);}
+  .list-item:last-child{border-bottom:none;}
+  .list-item-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+  .list-item-top .name{font-weight:700;font-size:13.5px;}
+
+  .accordion-item{border-bottom:1px solid var(--line);}
+  .accordion-item:last-child{border-bottom:none;}
+  .accordion-head{padding:14px 0;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:700;font-size:14px;}
+  .accordion-body{padding:0 0 14px;font-size:13px;color:var(--ink-soft);line-height:1.6;display:none;}
+  .accordion-body.open{display:block;}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(43,28,16,0.5);z-index:50;display:flex;align-items:flex-end;justify-content:center;}
+  .modal{
+    background:var(--cream);width:100%;max-width:480px;border-radius:20px 20px 0 0;
+    padding:20px 20px calc(24px + env(safe-area-inset-bottom));max-height:88vh;overflow-y:auto;
+  }
+  .modal-handle{width:40px;height:4px;background:var(--line);border-radius:4px;margin:0 auto 14px;}
+  .modal h3{margin:0 0 14px;font-size:17px;font-weight:800;}
+  video,canvas.snap{width:100%;border-radius:12px;background:#000;}
+  .geo-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:6px 12px;border-radius:20px;margin:10px 0;}
+  .geo-pill.in{background:var(--green-bg);color:var(--green);}
+  .geo-pill.out{background:var(--red-bg);color:var(--red);}
+  .geo-pill.off{background:var(--cream-deep);color:var(--orange-dark);}
+
+  .auth-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 28px;}
+  .auth-logo{width:64px;height:64px;border-radius:18px;background:linear-gradient(135deg,var(--orange),var(--orange-dark));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:26px;margin:0 auto 18px;box-shadow:0 6px 18px rgba(252,151,0,0.35);}
+  .auth-title{text-align:center;font-size:22px;font-weight:800;margin-bottom:4px;}
+  .auth-sub{text-align:center;color:var(--ink-soft);font-size:13px;margin-bottom:26px;}
+  .auth-switch{text-align:center;margin-top:16px;font-size:13px;color:var(--ink-soft);}
+  .auth-switch a{color:var(--orange-dark);font-weight:700;text-decoration:none;cursor:pointer;}
+  .err{color:var(--red);font-size:12.5px;margin-top:8px;}
+  .demo-note{background:var(--cream-deep);border-radius:10px;padding:10px 12px;font-size:11.5px;color:var(--orange-dark);margin-top:18px;line-height:1.5;}
+
+  .empty-state{text-align:center;padding:30px 10px;color:var(--ink-soft);font-size:13px;}
+  .section-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-soft);margin:22px 0 10px;}
+  .section-label:first-child{margin-top:0;}
+  .badge-count{background:var(--red);color:white;font-size:10px;font-weight:800;border-radius:10px;padding:1px 6px;margin-left:5px;}
+  .anon-toggle{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;margin:12px 0;}
+  .anon-toggle input{width:auto;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ AUTH SCREEN ============ -->
+  <div id="screen-auth" class="screen" style="padding-top:10px;">
+    <div class="auth-wrap">
+      <div class="auth-logo">S</div>
+      <div class="auth-title">Saffronads<span style="color:var(--orange)">360</span></div>
+      <div class="auth-sub" id="auth-subtitle">Sign in to your account</div>
+
+      <label class="field-label">Email</label>
+      <input id="auth-email" type="email" placeholder="you@saffronads.com">
+      <label class="field-label">Password</label>
+      <input id="auth-pass" type="password" placeholder="••••••••">
+      <div id="auth-err" class="err hidden"></div>
+
+      <div style="margin-top:18px;">
+        <button class="btn" id="auth-submit-btn" onclick="handleAuthSubmit()">Sign In</button>
+      </div>
+      <div class="auth-switch" id="auth-switch">
+        Don't have access? <a href="mailto:hr@saffronads.demo?subject=HR%20Access%20Request">Contact HR</a>
+      </div>
+      <div class="demo-note">
+        Prototype build — accounts are stored locally in your browser. Demo employees are pre-loaded so you can explore Admin features immediately: try <b>admin@saffronads.demo</b> / <b>demo123</b>.
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ MAIN APP ============ -->
+  <div id="screen-main" class="hidden" style="display:flex;flex-direction:column;min-height:100vh;">
+    <div class="topbar">
+      <div class="brand-row">
+        <div class="brand">
+          <div class="brand-mark">S</div>
+          <div>
+            <div class="brand-name">Saffronads<span>360</span></div>
+            <div class="muted" id="topbar-date"></div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <span class="role-pill" id="role-pill">Employee</span>
+          <div class="logout-link" onclick="logout()">Sign out</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- HOME ---- -->
+    <div id="page-home" class="screen">
+      <h2 class="page-title">Hi, <span id="home-name"></span> 👋</h2>
+
+      <div class="card clock-card">
+        <div class="ring-wrap">
+          <svg width="150" height="150">
+            <circle cx="75" cy="75" r="64" stroke="#F0E4CF" stroke-width="10" fill="none"/>
+            <circle id="ring-progress" cx="75" cy="75" r="64" stroke="#fc9700" stroke-width="10" fill="none"
+              stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="402"/>
+          </svg>
+          <div class="ring-center">
+            <div class="big" id="ring-hours">0.0h</div>
+            <div class="small">of 7h target</div>
+          </div>
+        </div>
+        <div class="muted" id="shift-status-line" style="margin-bottom:12px;">Not clocked in today</div>
+        <button class="btn" id="clock-btn" onclick="openClockModal()">Clock In</button>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <label class="anon-toggle" style="margin:0;">
+          <input type="checkbox" id="offsite-check" onchange="toggleOffsite(event)">
+          <span>Off-site / Field Work today</span>
+        </label>
+        <div id="offsite-note-wrap" class="hidden" style="margin-top:8px;">
+          <input id="offsite-note" placeholder="e.g. Client visit — ABC Pvt Ltd">
+          <div class="muted" style="margin-top:5px;">Off-site attendance skips the office geofence and is flagged for Admin review.</div>
+        </div>
+      </div>
+
+      <div class="balance-row">
+        <div class="balance-card"><div class="num" id="bal-el">0</div><div class="lab">EL</div></div>
+        <div class="balance-card"><div class="num" id="bal-cl">0</div><div class="lab">CL</div></div>
+        <div class="balance-card"><div class="num" id="bal-sl">0</div><div class="lab">SL</div></div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:700;font-size:13.5px;margin-bottom:6px;">Office hours</div>
+        <div class="muted">10:00 AM – 5:00 PM · 7-hour workday</div>
+        <div class="muted" style="margin-top:6px;">📍 Shop No. 13, Building 10, Indian Oil Nagar, Shivaji Nagar, Mumbai · 150m radius</div>
+      </div>
+      <div class="card" id="location-privacy-card" style="border-left:4px solid var(--green);">
+        <div style="font-weight:800;font-size:13.5px;margin-bottom:5px;">🔒 Location privacy</div>
+        <div id="location-privacy-status" class="muted" style="line-height:1.5;">Location access is <b>OFF</b>. GPS is requested only when you record attendance; there is no continuous or background location tracking.</div>
+      </div>
+    </div>
+
+    <!-- ---- ATTENDANCE & LEAVE ---- -->
+    <div id="page-attendance" class="screen hidden">
+      <h2 class="page-title">Attendance & Leave</h2>
+      <div class="tabs">
+        <button class="tabbtn active" id="tab-attendance-btn" onclick="switchALTab('attendance')">Attendance</button>
+        <button class="tabbtn" id="tab-leave-btn" onclick="switchALTab('leave')">Leave</button>
+      </div>
+
+      <div id="al-attendance">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <button class="btn ghost small" onclick="calShiftMonth(-1)">‹</button>
+            <div style="font-weight:800;font-size:14px;" id="cal-month-label"></div>
+            <button class="btn ghost small" onclick="calShiftMonth(1)">›</button>
+          </div>
+          <div class="cal-grid" id="cal-head-row"></div>
+          <div class="cal-grid" id="cal-grid" style="margin-top:5px;"></div>
+          <div class="legend">
+            <span><i class="dot" style="background:var(--green)"></i>Present</span>
+            <span><i class="dot" style="background:var(--yellow)"></i>Late/Early</span>
+            <span><i class="dot" style="background:var(--clarify)"></i>Pending clarification</span>
+            <span><i class="dot" style="background:var(--red)"></i>Loss of pay</span>
+            <span><i class="dot" style="background:#5B4CC4"></i>Leave</span>
+            <span><i class="dot" style="background:#1F6E8C"></i>Holiday</span>
+          </div>
+        </div>
+      </div>
+
+      <div id="al-leave" class="hidden">
+        <div class="card">
+          <div style="font-weight:800;font-size:14.5px;margin-bottom:4px;">Apply for leave</div>
+          <label class="field-label">Leave type</label>
+          <select id="leave-type" onchange="onLeaveTypeChange()">
+            <option value="EL">Earned Leave (EL)</option>
+            <option value="CL">Casual Leave (CL)</option>
+            <option value="SL">Sick Leave (SL)</option>
+            <option value="Maternity">Maternity Leave</option>
+            <option value="Paternity">Paternity Leave</option>
+          </select>
+          <label class="field-label">Duration</label>
+          <select id="leave-duration" onchange="onLeaveDurationChange()">
+            <option value="full">Full Day</option>
+            <option value="half">Half Day</option>
+          </select>
+          <div id="halfday-period-wrap" class="hidden">
+            <label class="field-label">Half-day period</label>
+            <select id="halfday-period">
+              <option value="first">First Half · 10:00 AM – 1:30 PM</option>
+              <option value="second">Second Half · 1:30 PM – 5:00 PM</option>
+            </select>
+            <div class="muted" style="margin-top:5px;"><span class="tag policy">Company Policy</span> Half-day leave uses 0.5 day from the selected EL or CL balance and requires Admin approval.</div>
+          </div>
+          <div id="el-policy-note" class="muted" style="margin-top:6px;"><span class="tag policy">Company Policy</span> EL must be applied at least 48 hours in advance.</div>
+          <label class="field-label">Start date</label>
+          <input type="date" id="leave-start">
+          <label class="field-label">End date</label>
+          <input type="date" id="leave-end">
+          <div id="leave-days-preview" class="muted" style="margin-top:6px;"></div>
+          <div id="sl-proof-wrap" class="hidden">
+            <div class="muted" style="margin:10px 0 6px;"><span class="tag policy">Company Policy</span> Medical proof required for SL over 2 days.</div>
+            <input type="file" id="sl-proof-file">
+          </div>
+          <label class="field-label">Reason</label>
+          <textarea id="leave-reason" rows="3" placeholder="Brief reason for this request"></textarea>
+          <div id="leave-err" class="err hidden" style="margin-top:8px;"></div>
+          <button class="btn" style="margin-top:14px;" onclick="submitLeave()">Submit Request</button>
+        </div>
+        <div class="section-label">Your requests</div>
+        <div class="card" id="leave-status-feed"></div>
+      </div>
+    </div>
+
+    <!-- ---- CALENDAR & POLICY ---- -->
+    <div id="page-policy" class="screen hidden">
+      <h2 class="page-title">Calendar & Policies</h2>
+      <div class="section-label">Mandatory State Holidays</div>
+      <div class="card" id="statutory-holidays"></div>
+      <div class="section-label">Company Festival Holidays</div>
+      <div class="card" id="festival-holidays"></div>
+      <div class="section-label">HR Policies</div>
+      <div class="card" id="policy-accordion"></div>
+      <div class="card">
+        <div style="font-weight:800;font-size:14.5px;margin-bottom:5px;">Need HR assistance?</div>
+        <div class="muted" style="line-height:1.5;">For HR queries, workplace concerns, documentation or other assistance, contact the designated HR representative.</div>
+        <div style="margin-top:12px;font-weight:700;font-size:13px;">HR Contact</div>
+        <div class="muted" style="margin-top:4px;">Vaibhav M · +91 98765 43211</div>
+        <div class="muted" style="margin-top:2px;">hr@saffronads.demo · HR Team</div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn secondary small" style="flex:1;" onclick="contactHR()">✉ Email HR</button>
+          <button class="btn secondary small" style="flex:1;" onclick="window.location.href='tel:+919876543211'">📞 Call Vaibhav</button>
+        </div>
+      </div>
+      <div class="card">
+        <button class="btn secondary" onclick="downloadHandbook()">📄 Download Employee Handbook</button>
+      </div>
+    </div>
+
+    <!-- ---- ADMIN ---- -->
+    <div id="page-admin" class="screen hidden">
+      <h2 class="page-title">Admin Portal</h2>
+
+      <div class="section-label">Pending Approvals <span class="badge-count" id="approval-count">0</span></div>
+      <div class="card" id="approvals-list"></div>
+
+      <div class="section-label">Add Employee</div>
+      <div class="card">
+        <label class="field-label">Full name</label>
+        <input id="new-emp-name" placeholder="e.g. Priya Nair">
+        <label class="field-label">Employee ID</label>
+        <input id="new-emp-code" placeholder="e.g. SA-004">
+        <label class="field-label">Company email</label>
+        <input id="new-emp-email" type="email" placeholder="priya@saffronads.com">
+        <label class="field-label">Temporary password</label>
+        <input id="new-emp-pass" type="password" placeholder="Set a temporary password">
+        <label class="field-label">Department</label>
+        <input id="new-emp-dept" placeholder="e.g. Marketing">
+        <label class="field-label">Designation</label>
+        <input id="new-emp-designation" placeholder="e.g. Account Executive">
+        <label class="field-label">Role</label>
+        <select id="new-emp-role">
+          <option value="employee">Employee</option>
+          <option value="admin">HR Admin</option>
+        </select>
+        <div id="new-emp-err" class="err hidden" style="margin-top:8px;"></div>
+        <button class="btn" style="margin-top:12px;" onclick="addEmployee()">Add Employee</button>
+      </div>
+
+      <div class="section-label">Employee Directory</div>
+      <div class="card" id="employee-directory"></div>
+
+      <div class="section-label">Leave Balance Adjustment</div>
+      <div class="card">
+        <select id="adj-employee"></select>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <div style="flex:1;"><label class="field-label">EL</label><input type="number" id="adj-el"></div>
+          <div style="flex:1;"><label class="field-label">CL</label><input type="number" id="adj-cl"></div>
+          <div style="flex:1;"><label class="field-label">SL</label><input type="number" id="adj-sl"></div>
+        </div>
+        <button class="btn secondary" style="margin-top:12px;" onclick="adjustBalance()">Save Balances</button>
+      </div>
+
+      <div class="section-label">Compliance Exports</div>
+      <div class="card" style="display:flex;flex-direction:column;gap:10px;">
+        <button class="btn secondary" onclick="exportFormQ()">⬇ Export Attendance (Form Q)</button>
+        <button class="btn secondary" onclick="exportFormO()">⬇ Export Leave Book (Form O)</button>
+      </div>
+
+    </div>
+
+    <div class="navbar">
+      <button class="navbtn active" data-page="home" onclick="goPage('home')"><span class="ic">🏠</span>Home</button>
+      <button class="navbtn" data-page="attendance" onclick="goPage('attendance')"><span class="ic">📅</span>Attendance</button>
+      <button class="navbtn" data-page="policy" onclick="goPage('policy')"><span class="ic">📖</span>Policy</button>
+      <button class="navbtn hidden" id="nav-admin" data-page="admin" onclick="goPage('admin')"><span class="ic">⚙️</span>Admin</button>
+    </div>
+  </div>
+
+  <!-- ============ PASSWORD CHANGE MODAL ============ -->
+  <div id="password-modal" class="modal-bg hidden">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <h3>Set a new password</h3>
+      <div class="muted" style="margin-bottom:12px;">For security, new employee accounts must change their temporary password before continuing.</div>
+      <label class="field-label">New password</label>
+      <input id="new-password" type="password" placeholder="At least 8 characters">
+      <label class="field-label">Confirm password</label>
+      <input id="new-password-confirm" type="password" placeholder="Re-enter password">
+      <div id="password-err" class="err hidden" style="margin-top:8px;"></div>
+      <button class="btn" style="margin-top:12px;" onclick="changePassword()">Save New Password</button>
+    </div>
+  </div>
+
+  <!-- ============ CLOCK MODAL ============ -->
+  <div id="clock-modal" class="modal-bg hidden">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <h3 id="clock-modal-title">Clock In</h3>
+      <video id="cam-video" autoplay playsinline></video>
+      <canvas id="cam-canvas" class="snap hidden"></canvas>
+      <div id="clock-modal-note-wrap" class="hidden" style="margin:10px 0;">
+        <label class="field-label">Off-site reason</label>
+        <input id="clock-modal-note" placeholder="e.g. Client visit — ABC Pvt Ltd">
+      </div>
+      <div class="card" style="margin:10px 0 6px;padding:12px;border-left:4px solid var(--orange);background:var(--cream-deep);">
+        <div style="font-weight:800;font-size:13px;margin-bottom:4px;">🔒 Location privacy</div>
+        <div id="clock-location-privacy" class="muted" style="line-height:1.45;">Location access is requested only for this attendance action. There is no continuous or background GPS tracking.</div>
+      </div>
+      <div id="geo-status" class="geo-pill off">📍 Preparing one-time GPS check…</div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn ghost" onclick="closeClockModal()">Cancel</button>
+        <button class="btn" id="capture-btn" onclick="captureSelfie()">📸 Capture</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ DAY DETAIL MODAL ============ -->
+  <div id="day-modal" class="modal-bg hidden" onclick="if(event.target===this)closeDayModal()">
+    <div class="modal" id="day-modal-content"></div>
+  </div>
+
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+const OFFICE_LAT = 19.0645516, OFFICE_LNG = 72.8411579, OFFICE_RADIUS_M = 150;
+const OFFICE_START = "10:00", OFFICE_END = "17:00", SHIFT_HOURS = 7;
+const HALF_DAY_HOURS = SHIFT_HOURS / 2;
+const HALF_DAY_START = "10:00", HALF_DAY_BREAK = "13:30", HALF_DAY_END = "17:00";
+const STATUTORY_HOLIDAYS = [
+  {date:"2026-01-26",name:"Republic Day"},
+  {date:"2026-05-01",name:"Maharashtra Day"},
+  {date:"2026-08-15",name:"Independence Day"},
+  {date:"2026-10-02",name:"Gandhi Jayanti"},
+];
+const FESTIVAL_HOLIDAYS = [
+  {date:"2026-11-08",name:"Diwali"},
+  {date:"2026-03-04",name:"Holi"},
+  {date:"2026-08-26",name:"Ganesh Chaturthi"},
+  {date:"2026-12-25",name:"Christmas"},
+];
+
+const HANDBOOK_PDF_B64 = "JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSIC9GMiAzIDAgUgo+PgplbmRvYmoKMiAwIG9iago8PAovQmFzZUZvbnQgL0hlbHZldGljYSAvRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZyAvTmFtZSAvRjEgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iagozIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhLUJvbGQgL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcgL05hbWUgL0YyIC9TdWJ0eXBlIC9UeXBlMSAvVHlwZSAvRm9udAo+PgplbmRvYmoKNCAwIG9iago8PAovQ29udGVudHMgOSAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCA4IDAgUiAvUmVzb3VyY2VzIDw8Ci9Gb250IDEgMCBSIC9Qcm9jU2V0IFsgL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSSBdCj4+IC9Sb3RhdGUgMCAvVHJhbnMgPDwKCj4+IAogIC9UeXBlIC9QYWdlCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9Db250ZW50cyAxMCAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCA4IDAgUiAvUmVzb3VyY2VzIDw8Ci9Gb250IDEgMCBSIC9Qcm9jU2V0IFsgL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSSBdCj4+IC9Sb3RhdGUgMCAvVHJhbnMgPDwKCj4+IAogIC9UeXBlIC9QYWdlCj4+CmVuZG9iago2IDAgb2JqCjw8Ci9QYWdlTW9kZSAvVXNlTm9uZSAvUGFnZXMgOCAwIFIgL1R5cGUgL0NhdGFsb2cKPj4KZW5kb2JqCjcgMCBvYmoKPDwKL0F1dGhvciAoXChhbm9ueW1vdXNcKSkgL0NyZWF0aW9uRGF0ZSAoRDoyMDI2MDgyODA3MjEyNCswMCcwMCcpIC9DcmVhdG9yIChcKHVuc3BlY2lmaWVkXCkpIC9LZXl3b3JkcyAoKSAvTW9kRGF0ZSAoRDoyMDI2MDgyODA3MjEyNCswMCcwMCcpIC9Qcm9kdWNlciAoUmVwb3J0TGFiIFBERiBMaWJyYXJ5IC0gXChvcGVuc291cmNlXCkpIAogIC9TdWJqZWN0IChcKHVuc3BlY2lmaWVkXCkpIC9UaXRsZSAoXChhbm9ueW1vdXNcKSkgL1RyYXBwZWQgL0ZhbHNlCj4+CmVuZG9iago4IDAgb2JqCjw8Ci9Db3VudCAyIC9LaWRzIFsgNCAwIFIgNSAwIFIgXSAvVHlwZSAvUGFnZXMKPj4KZW5kb2JqCjkgMCBvYmoKPDwKL0ZpbHRlciBbIC9BU0NJSTg1RGVjb2RlIC9GbGF0ZURlY29kZSBdIC9MZW5ndGggMjI1Nwo+PgpzdHJlYW0KR2F0bTw9YGA9ZSUiQHJTXmYqYkZhOil1Ym0/P05TOGFBYSNlXURuWzAuViZoZDNjRUhFW2IpaV47MDpOQmo2bElHPEUxTDRUT2koJXA0PnRSLnQ9WXMlcyFpRT0qZD8vWzAmWWNHPU4xKFQoOFEwZzU+WEBiISFCXmJCV0dbaXQ2aF9mSXBWcFlpS1lWcmNuQC0hNzlHZ24oMykpZjFdQGcwMSFdPUBRXTAyVTUqLih1MkNsPmAsJmpMI1xaa0AhV0A0cE1laG5LR0pzU15SKSRAZ2BycioqUSYxZi5rW3RQPTFBMzc+ZW9PbWMyI0U3Z1Y6MV9vRzUvTU0ucSxha28ha1A7SWktMyhrRldPSmtEOWhPPCJKdUxvMD9DXENTX1s2U0tNOyU4N2tZRDlNTkBHVEldbG8xWnEpUXEzcChnOG05KE1sPWpFWTJHKFAjO0IyOWs6dC4pNShrSDNlZjkta21tOTQ+O0FPOD5MYnNyJD9LYTMwNmkhVjxxTFNDYiJYcVYraSwwdUVFJEdjSkU8bVowLGBTIjghTD5hITA2cyhsKixeclNEVjBRXytnK1BqbG9vLClZS0xiJScpWj83LTxbVFFQKEBEO1ZYKFU+ZzQ8W24vM2hibFc6LEteNVJrbUlJNj1LO1JBOCxOXyhiRSRvcSIxdUJxLm9lLCk6UkpIIWhOWlNZcVVrR1tuYERIPlJeVlYmWyw8QlpHSWNWVV8+PyIlcD9FPFdmNUJVanNjN2otXkdoJjtgOTIiYzJ0OjYyKXAhLj5vQFJOWG8oWmk9SXJEb0AnKEQ1azpObjAsMVFtVSteTV4oY0RVOlg8YCo3ZzdXc1lgcCN1ay9OSmBUbkcvT1M/UEsvRiMqNmgwbm1eREQtPV1XTW5BQWInRCpUWzVOOGxKMjYjaTMpOyZTWWlFQD1tQztuLlZ1WFtZRzJNV0dkWiZbKysuZi00TWxfVW9DJDJmYSxdTSJZJzdYZl8+QDN1bk82IU9pZW1UKltfLXImK2ZqWWYsRT5YXlU+R2IrVz8+bUdXZCwoYmM5dEBQW0BTVFRzWytUcVNkOWhiPWQoZitiKUdHazxdI2BwYU8iXEo3OE0uRVMuTUBoPi5DJiUlc0ppNWBHM2ksaEtKWSFdX3VoRiFnMCwnbDZJUCUuW3BJYnBDVWBBOz1NLHE7Si0jb09zMmU1RDBFWi4uOmYtI209bidzXnQ8QTN1SlNiVFlDcU9DNiMvbDlVWldKMippK2p0JC9MSCVYV1tQRlolKjVpaGlCLG9CXlUtP2shMFI3XWpXZD83ITFeYStca1hdLWErVlBHJS4tJGImOjtBPUNdQztZK0RFTDNeTzAxQ2AmLVhrI2hMQlg3bU8nQG1PQUJcNmlgUUtFMm45Ll4vOEpBOlBUaztYYm1RUGQwLSg6OzJSQmErailWbzNxNWtiOFlFNTxOWGJWQUtkSkMjTDNYXHVGXylOTWorL0xmSXAoaCZnWyRPcEdoXXU8QEUzJTVBcENhWFQ8J2JRLEosI01URDBkNEVcam4wZjEoXEpBdDJQXTZhKF9UR1pkbT1Ucm9IOTtuQFtgOFcrXDYrVj4sU2BaVmBbbCg7MGYsV09ARHImZzZUWzUwWysoRWs/QkpzLm4iOGtHSHRPW2JZdHJQTz8tP0pBUSRZJSQlTWs/NlZKWDgkVmk2QD0ubEs+JVVoZV1TRVpuTldkMlxHNlRqO0BLbmBacmonYU0nLlMyKFU/OC5kYmkxLiE8VXB0XzJcWGg3b05WQ1YkRT0kS2ZVUFItXTcpT1FZKWctYktHVkFQWTYlaktIJD9bPWgsO2kvPlY2RitGK19EJGFjbz4vX1xfc0tBS2JVbk4jZE06OUtQUU0rYGFYMkJFQSxfb0NXWmJWIU9SS2c7IydMTHMsNUVuXi8pZVVKZzJjT2EwViItJjY7cnFBSkUxaEBZTk5CZCldKEE6IS1OWEwvayxsbEh0QD5GZDU0ZmBTbkJga10xWnBdMUhWXE1BRCljWyotNWowZUNJTVE3Ll8+KkBAdDErX0xHTC5NMCZONm5HMSxkY2JcYVcoPmF0PjhJcFM4bipLXDwxTzclPiRnRCM2R2YhOVckSHRPXiguPmEtTzhJWVtWLFZZPE1GIVFgTnExYTJgbTo3bTRgUzowTFdlUFBgSi9fNiZITCgtYTVgRU4zSDxSZGx1QGUya1hkIiRhQyZJJkhcPzdtaE01JHBYMmJDRl5TISswLTpGTz0sWU0oLUZHInVDSmxgcTpgWDsuRDhYWEQ9Z2h0MVNuQihHaiVSQ3A4LlZ0cEYyT2MsaFslMlpoPG1QUF1TIzlLOlpQdU5VTms+YSohIjZnPi1AUSRGLzgkYyZpN1MwY0M3aSxLMVEqYTpvOCtcSi1ySChYXmArUypERm9baWRIJChxJSxTV2ZsWTVrJydrYmE1czg4aklTPmZlTjZTUCpWZyhwN1EpLTo8Xj0kKjhZW04qUDY8KzR0LVxmYjZTZ2smc0E3ViI/TDhKbDBCMjQmRGdqclFLWCgiO1ptY1pPTVFGRSdNNE46U1FWNCVgSTQqQGZiWEQ9Vy9WJDYuPF89JDAwN0EkVTdMMHVaRyYnUV1RYmV0XG9rKSVlM01ZKiRXa1p1Rz5YSC9ULzAiVFReOTxrV1FqLTJeQCMyaks4Ql8mNSEqTi8kQnBsNiRkMllAIWVjaSh1WmhARkpERjc6LV9JNicpZkdcbGpLQ2ctcWVAZ1tGK2IzVmxqXWpcN1JZZDdrcSs6SEFNbU0lam47ZUNOR1xeX0BIaCYxVFQtTWVMJW9ecFxAPXRGR2dxM1AnZyVwSy48XnNiS3FlK04wQXA/U2pnRGNGRF9mJUdHayRiUGVYP1tuREAnaDtvMlYhYCRnQFlKLD9XVk40cXE1VFdIRy8sP2MlcDAsU2VTQy81MSFOP1BDX2xWOyc7SktxSVRvK2xrZGsoU0g7PVBYPSRuc2JPLSEvWSJYajxON1dUVzB+PmVuZHN0cmVhbQplbmRvYmoKMTAgMCBvYmoKPDwKL0ZpbHRlciBbIC9BU0NJSTg1RGVjb2RlIC9GbGF0ZURlY29kZSBdIC9MZW5ndGggMjA2MAo+PgpzdHJlYW0KR2F1MEM5bG8jWiZBQDcub1AnNG82LlE4SFNAdSNVTl0wUGdLWElmOE1fQl0+K045THVOKCwvXFlNW3MsJiRWJSdXZmVyOEA/PilJXSYyaCZoO2FXVTVMNGRKM1JKcGkzaz1uKG80Ym9hRHMuVUQ1LEVKcD0nbzxbYy0iR2RFVyUkUEJjUXVwLWw8RHUmJE43Y2xZTGhbQjEyPjIjJ2AzSzRRUWZAXT4sYCtVPkYuWigqWERcLFlOcDxrWWU9YGZGRWlZPmNAZV44QlwzJS8uSiI4QzpSO0k7UF4+MFBVJmpWKWF0XkJuJ1laNlIyI0NZWWJTIWcrcSNsMmIkNFdJVi0qXGJrJE1nJEwzZV4hcF4hZEdKPXVuWWhrQGk7RSVgb2MkUl9XNC1IQzEnLWdtJzkoVmJcTCJTIjIuSi0vIUdvWjdJbEZzMlh0SFM7XGRodV5WZFhlMydkLz1paGgvVykuKWkpLWswZnEzND1nJVhaTzEoNC9hRXVMIzlkPjQ7YWs+K0ItJTcxdC43WlFxNSFsPmAyW1g7VDBtUSFBJl5qaElobFQoX0IsS3M5SE1fbCoqJG1xNzpHPmxCQXE6KSpgLCJecV85UHBXJTtKJVpjOWY9UFdVRzpROTlKdSRFWCohK2ZncGFGWkIzLEw0OERgKzpWOmpEZGxYailZOW9rP1tAZC0/T2E6VzNmQGkkSi0sSVBLJlJtMVF1YV09TCpZSTFzLjBkVVt1WVpPcjo0USpdLHMmZWdAW0E/bmFWZTZZdVhPVGohQmhcWG1FWWJRVlFDWFhcRUxzVyVNc1E3MSUvb1wrLk49KlE4YkFYPHBlTCRoOSxEViNbJksscC1lJ0knXTVOZzpSb0MsYCxJO2k+XG9OKHE2O2pPLToiITQmJ2QrdWorXTAsQiReNCUoajJXcFgsIXVmPSVYaEcncUhaajhYZDI1TTctUSVDJlJaVXUvYy07SlRbRGApYmVzalY3VT5ebjJgZ0ciOHQ+SCNnJSNKZ2IlZCc6bjdZPShic1NOUzgwUmVHJThJJHJxXHJaRlxjWkZbVjZSRGVAPEo/Z3AsWFApTVopKyFAakk6cVI/XUBHXU1BIio5ajcrPVY5NG0iOCRHI206UykoaEVHNkonRlw4OD9ZYTcyMTNgWV05IyFtWTxtcV5hYTVWNFA6PWMwLG9FMWhHNlNDQzZqViVtLW5aaUxaWzhxWGJXVisqNjAjYVNIals4UT5CZz9NYlNjQSltK2xuTSRAXWtycnRRXEZcWUM7PV5paTBYZUkyaXFgUTZHcmdYTzlQJV81XiheWCo2a2lXYjoqcmdHKlpcTUYvUGghLCw9RmZaKVpEVlkpTlpOOl9xUTY7J1RxckptNl81XFVzXEJkb2RuUUlFblUncTUlKyFOZF9LcCU1KmA6KXQlaSs3aFAoUjByVlYiVEBVJnQlX10nOCxiOWpQUD9rcmleaTkzJi9XWmZbIjEyOzY3VV9NQiMmLD06byswO2svX0FNU2NrK0NQRD04XjZgIi1jbjZoLyZLPyY6c187J25iams1PyNZXiVWLFMsKm0idCxlOEJpcExpJDZdTVo8ITpPJiV1b01LRW5AOGFjOyRwaktTIzRkMEZKbkdocCNSJmppaSJHOj9FYWpHNUpyPV5xWkYnPW0oTyFPOTE4NDpCUSlASltwIWBNI1ZrcUwocS9RYldzJCdwMyNsVUItS0w9bVsyWEVlLiVwWlYpJGovV0U1aD9xRUI/QDxzXnRNJTBoaVkuPEBMZlw6ZD9SbjpPPyU/YyZNKjUuMT5YVkFqUHRaJ1xhN2NgKk1BUCgoLGFeOD4mMnErIlc5RmlNTFZdTTdoLzYuUlxqOTpiYmpiIW8qa0dATnAucVFwMl5ZS3JdW1k/cDRvdHImLClJIipmaXBPZGFlaTYzdUBhUjQzRi1mRzMkKFYzXE1scTdAQiYkIyNJXkkrXGcjNCotVGUzWGZXMkxDWl8wVlBDI3NZKiIoNjxUbnA0bkBSSEBkU0x1KD9bYjk1a1N0QFtFRyZvX00hMmUndVpBa2MiOywqQ3BaPV9ycylBJnQySTRAMkNhZ0hjQTBeQVgiN1JLYDUyJXNYa0E2cUlSKyRNM1hPLChJUCdEcy1oKk4sVHBrdTstQ01IKlZxMVVedU5JXkc4bGVELzlqJmxRUVA5cU5lQUc0KUwqTm5yRzNMQXIlUitxYVFrRlxuV1g0aVFtMzMjazN0SUYlNDFvRmgrTC5AKGc8JFBBXyMvOT5yJW0sJTZiSVcjPCE+QEZLQ0lcJURBTkE6K3Bgalo9YSJUPHBEIS4nIjlyUT5TZChNZnQ3XTtJTykiNyZZdEhrPGxaU2VSIz0mKjJpKTRKa0krP3BOa2FCRCZsNzNgLVdwXydwdWE3Y1xAU1wyVDhJJzRrLjhWdDoibmtVUGZCZmFWQTo+clBWKVVVdHQ2Zmw1WjNyVDhFaGFhPFpsNGQuOGRaRnUpNHBOJjc1NzlTQDhnPEdEUWE/JzZGPFhcVks5Nm1Kc0M5KkQzTEEuNjorT0FLMTtPJiFYS28jLnQpRTdTPWs7UVJpQS9kcEFGYUNsTUoodVg0JFhSR2kpc3BhczFwJEteQ1tKTFBmbTNdIzFXak9jXC1yRElLaTMraG00XG1qayhgQVlBSHI7Wj90OmZeaDFwNy4xK2dranMoLUlrSEBLXzpLPGNCN0VAVGozKGxQREExKERbNHJyQk0nb0tpfj5lbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCAxMQowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwNjEgMDAwMDAgbiAKMDAwMDAwMDEwMiAwMDAwMCBuIAowMDAwMDAwMjA5IDAwMDAwIG4gCjAwMDAwMDAzMjEgMDAwMDAgbiAKMDAwMDAwMDUyNCAwMDAwMCBuIAowMDAwMDAwNzI4IDAwMDAwIG4gCjAwMDAwMDA3OTYgMDAwMDAgbiAKMDAwMDAwMTA3NiAwMDAwMCBuIAowMDAwMDAxMTQxIDAwMDAwIG4gCjAwMDAwMDM0ODkgMDAwMDAgbiAKdHJhaWxlcgo8PAovSUQgCls8YjhlMWI3Nzc4NmQxNmZmNTk1NDhlODU5ODBiOTA5NzI+PGI4ZTFiNzc3ODZkMTZmZjU5NTQ4ZTg1OTgwYjkwOTcyPl0KJSBSZXBvcnRMYWIgZ2VuZXJhdGVkIFBERiBkb2N1bWVudCAtLSBkaWdlc3QgKG9wZW5zb3VyY2UpCgovSW5mbyA3IDAgUgovUm9vdCA2IDAgUgovU2l6ZSAxMQo+PgpzdGFydHhyZWYKNTY0MQolJUVPRgo=";
+
+/* ================= STORAGE HELPERS ================= */
+// Use the platform storage API when available; otherwise fall back to browser localStorage.
+// This keeps the prototype functional when the HTML file is opened directly in a browser.
+async function sget(key, fallback){
+  try{
+    if(window.storage && typeof window.storage.get === 'function'){
+      const r = await window.storage.get(key);
+      return r ? JSON.parse(r.value) : fallback;
+    }
+  }catch(e){}
+  try{
+    const raw = localStorage.getItem('saffronads360_'+key);
+    return raw !== null ? JSON.parse(raw) : fallback;
+  }catch(e){ return fallback; }
+}
+async function sset(key, value){
+  const serialized = JSON.stringify(value);
+  try{
+    if(window.storage && typeof window.storage.set === 'function'){
+      await window.storage.set(key, serialized);
+      return;
+    }
+  }catch(e){}
+  try{ localStorage.setItem('saffronads360_'+key, serialized); }catch(e){ console.error(e); }
+}
+
+/* ================= STATE ================= */
+let CURRENT_USER = null;
+let AUTH_MODE = 'signin';
+let mediaStream = null;
+let capturedPhoto = null;
+let capturedGeo = null;
+let calMonthOffset = 0;
+
+function todayStr(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function fmtTime(d){ return d.toTimeString().slice(0,5); }
+function haversine(lat1,lon1,lat2,lon2){
+  const R=6371000, toRad = x=>x*Math.PI/180;
+  const dLat=toRad(lat2-lat1), dLon=toRad(lon2-lon1);
+  const a=Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+/* ================= SEED DEMO DATA ================= */
+async function seedDemoData(){
+  // Migration-safe demo seed: make sure the preloaded Admin account exists
+  // even if an older prototype version has already stored data.
+  let employees = await sget('employees', []);
+  if(!Array.isArray(employees)) employees=[];
+
+  const demoUsers = [
+    {id:'admin1', name:'Freya Shaikh (Admin)', email:'admin@saffronads.demo', password:'demo123', role:'admin', joining_date:'2024-01-15', status:'active', department:'HR', designation:'HR Admin', employee_code:'SA-ADMIN', must_change_password:false},
+    {id:'emp1', name:'Aarav Mehta', email:'aarav@saffronads.demo', password:'demo123', role:'employee', joining_date:'2024-03-01', status:'active', department:'Operations', designation:'Employee', employee_code:'SA-001', must_change_password:false},
+    {id:'emp2', name:'Sanya Kapoor', email:'sanya@saffronads.demo', password:'demo123', role:'employee', joining_date:'2024-06-10', status:'active', department:'Operations', designation:'Employee', employee_code:'SA-002', must_change_password:false},
+    {id:'emp3', name:'Rohan Iyer', email:'rohan@saffronads.demo', password:'demo123', role:'employee', joining_date:'2025-01-20', status:'active', department:'Operations', designation:'Employee', employee_code:'SA-003', must_change_password:false},
+  ];
+
+  for(const demoUser of demoUsers){
+    const existing = employees.find(e=>e.id===demoUser.id || e.email===demoUser.email);
+    if(existing){
+      existing.name = existing.name || demoUser.name;
+      existing.email = existing.email || demoUser.email;
+      existing.password = existing.password || demoUser.password;
+      existing.role = existing.role || demoUser.role;
+      existing.status = existing.status || demoUser.status;
+      existing.joining_date = existing.joining_date || demoUser.joining_date;
+      existing.department = existing.department || (demoUser.role==='admin'?'HR':'Operations');
+      existing.designation = existing.designation || (demoUser.role==='admin'?'HR Admin':'Employee');
+      existing.employee_code = existing.employee_code || demoUser.id.toUpperCase();
+    }else{
+      employees.push({...demoUser});
+    }
+  }
+  await sset('employees', employees);
+
+  // Do not overwrite real/demo activity on every page load.
+  if(await sget('seeded_v6', false)) return;
+  if(await sget('seeded_v5', false) || await sget('seeded_v4', false)){
+    if(!(await sget('attendance_tracking_started', null))) await sset('attendance_tracking_started', todayStr());
+    await sset('seeded_v6', true);
+    return;
+  }
+
+
+  // Migrate the previous prototype safely. Remove only the known seeded demo
+  // requests; never replace existing attendance, leave balances, or user changes.
+  const legacySeeded = await sget('seeded_v2', false) || await sget('seeded_v3', false) || await sget('seeded_v4', false) || await sget('seeded_v5', false);
+  let existingRequests = await sget('leave_requests', []);
+  if(Array.isArray(existingRequests)){ existingRequests = existingRequests.filter(r=>!['lr1','lr2'].includes(r.id)); await sset('leave_requests', existingRequests); }
+  if(legacySeeded){
+    // The v2 prototype could have generated a large backlog of synthetic
+    // pending-clarification records. Clear only those empty, unclocked records
+    // during the one-time migration; genuine records with a clock event or
+    // explanation are preserved. Start the new tracking window today.
+    const legacyLogs = await sget('attendance_logs', {});
+    let cleaned = false;
+    Object.keys(legacyLogs).forEach(key=>{
+      const l=legacyLogs[key];
+      if(l && l.status==='pending_clarification' && !l.clock_in_time && !l.clock_out_time && !l.clarification_note){ delete legacyLogs[key]; cleaned=true; }
+    });
+    if(cleaned) await sset('attendance_logs', legacyLogs);
+    if(!(await sget('attendance_tracking_started', null))) await sset('attendance_tracking_started', todayStr());
+    await sset('seeded_v6', true);
+    return;
+  }
+
+  const balances = {
+    admin1:{EL:12,CL:6,SL:5}, emp1:{EL:9,CL:4,SL:6}, emp2:{EL:14,CL:5,SL:3}, emp3:{EL:5,CL:6,SL:7}
+  };
+  await sset('leave_balances', balances);
+
+  // seed a few days of attendance for emp1 for demo richness
+  const logs = {};
+  const now = new Date();
+  for(let i=1;i<=6;i++){
+    const d = new Date(now); d.setDate(d.getDate()-i);
+    if(d.getDay()===0 || d.getDay()===6) continue;
+    const dateStr = d.toISOString().slice(0,10);
+    const status = i===3 ? 'late' : 'present';
+    logs[`emp1_${dateStr}`] = {
+      employee_id:'emp1', date:dateStr,
+      clock_in_time: status==='late' ? '10:22' : '09:58',
+      clock_out_time:'17:05',
+      hours_logged:7.1,
+      status, clarification_note:'',
+      photo:null, geo:{lat:OFFICE_LAT,lng:OFFICE_LNG,in_radius:true}
+    };
+  }
+  await sset('attendance_logs', logs);
+
+  await sset('leave_requests', []);
+
+  await sset('seeded_v6', true);
+}
+
+/* ================= AUTO-FLAG MISSING DAYS ================= */
+// Any past business day (not weekend, not holiday, not on approved leave) with
+// no attendance record gets auto-flagged pending_clarification, so it surfaces
+// to both the employee (to explain) and admin (in the approvals queue) instead
+// of silently showing as blank.
+async function flagMissingDays(){
+  const started = await sget('attendance_tracking_started', null);
+  if(!started){ await sset('attendance_tracking_started', todayStr()); return; }
+  const employees = await sget('employees', []);
+  let logs = await sget('attendance_logs', {});
+  const leaves = await sget('leave_requests', []);
+  const leaveList = Array.isArray(leaves) ? leaves : [];
+  const holidaySet = new Set([...STATUTORY_HOLIDAYS, ...FESTIVAL_HOLIDAYS].map(h=>h.date));
+  const today = new Date(); today.setHours(0,0,0,0);
+  let changed = false;
+
+  employees.forEach(emp=>{
+    if(emp.role==='admin' || emp.status!=='active') return;
+    const joinDate = emp.joining_date ? new Date(emp.joining_date) : today;
+    const trackingStart = new Date(started); trackingStart.setHours(0,0,0,0);
+    const start = joinDate > trackingStart ? joinDate : trackingStart;
+    for(let d=new Date(start); d<today; d.setDate(d.getDate()+1)){
+      const dow = d.getDay();
+      if(dow===0 || dow===6) continue; // weekend
+      const dateStr = d.toISOString().slice(0,10);
+      if(holidaySet.has(dateStr)) continue;
+      const onApprovedLeave = leaveList.find(l=>l.employee_id===emp.id && l.status==='approved' && dateStr>=l.start_date && dateStr<=l.end_date);
+      // Full-day leave removes the attendance obligation; half-day leave still
+      // requires the employee to record the working half of the day.
+      if(onApprovedLeave && onApprovedLeave.duration!=='half') continue;
+      const key = `${emp.id}_${dateStr}`;
+      if(!logs[key]){
+        logs[key] = {employee_id:emp.id, date:dateStr, clock_in_time:null, clock_out_time:null, hours_logged:0, status:'pending_clarification', clarification_note:''};
+        changed = true;
+      }
+    }
+  });
+  if(changed) await sset('attendance_logs', logs);
+}
+
+/* ================= AUTH ================= */
+async function handleAuthSubmit(){
+  const email = document.getElementById('auth-email').value.trim().toLowerCase();
+  const pass = document.getElementById('auth-pass').value;
+  const errEl = document.getElementById('auth-err');
+  errEl.classList.add('hidden');
+  if(!email || !pass){ errEl.textContent='Enter your authorized company email and password.'; errEl.classList.remove('hidden'); return; }
+
+  const employees = await sget('employees', []);
+  const found = employees.find(e=>e.email===email && e.password===pass && e.status==='active');
+  if(!found){
+    errEl.textContent='Access denied. Use your authorized company email and password, or contact HR.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  CURRENT_USER = found;
+  await sset('session_user_id', CURRENT_USER.id);
+  if(CURRENT_USER.must_change_password){
+    document.getElementById('screen-auth').classList.add('hidden');
+    document.getElementById('screen-main').classList.add('hidden');
+    document.getElementById('password-modal').classList.remove('hidden');
+    return;
+  }
+  enterApp();
+}
+
+async function changePassword(){
+  const p=document.getElementById('new-password').value;
+  const c=document.getElementById('new-password-confirm').value;
+  const err=document.getElementById('password-err');
+  err.classList.add('hidden');
+  if(p.length<8){ err.textContent='Password must be at least 8 characters.'; err.classList.remove('hidden'); return; }
+  if(p!==c){ err.textContent='Passwords do not match.'; err.classList.remove('hidden'); return; }
+  const employees=await sget('employees',[]);
+  const emp=employees.find(e=>e.id===CURRENT_USER.id);
+  if(!emp) return;
+  emp.password=p; emp.must_change_password=false;
+  await sset('employees',employees);
+  CURRENT_USER=emp;
+  document.getElementById('new-password').value=''; document.getElementById('new-password-confirm').value='';
+  document.getElementById('password-modal').classList.add('hidden');
+  await enterApp();
+}
+
+function logout(){
+  CURRENT_USER = null;
+  sset('session_user_id', null);
+  document.getElementById('screen-main').classList.add('hidden');
+  document.getElementById('screen-auth').classList.remove('hidden');
+}
+
+async function enterApp(){
+  await flagMissingDays();
+  document.getElementById('screen-auth').classList.add('hidden');
+  document.getElementById('screen-main').classList.remove('hidden');
+  document.getElementById('home-name').textContent = CURRENT_USER.name.split(' ')[0];
+  document.getElementById('role-pill').textContent = CURRENT_USER.role==='admin' ? 'Admin' : 'Employee';
+  document.getElementById('nav-admin').classList.toggle('hidden', CURRENT_USER.role!=='admin');
+  document.getElementById('topbar-date').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+  setLocationPrivacyState(false, 'Location access is <b>OFF</b>. GPS is requested only when you record attendance; there is no continuous or background location tracking.');
+  await refreshHome();
+  await refreshCalendar();
+  await refreshLeaveFeed();
+  renderHolidays();
+  renderPolicyAccordion();
+  if(CURRENT_USER.role==='admin') await refreshAdmin();
+}
+
+/* ================= NAV ================= */
+function goPage(name){
+  if(name==='admin' && (!CURRENT_USER || CURRENT_USER.role!=='admin')) return;
+  ['home','attendance','policy','admin'].forEach(p=>{
+    document.getElementById('page-'+p).classList.toggle('hidden', p!==name);
+  });
+  document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active', b.dataset.page===name));
+  if(name==='admin') refreshAdmin();
+}
+
+function switchALTab(tab){
+  document.getElementById('al-attendance').classList.toggle('hidden', tab!=='attendance');
+  document.getElementById('al-leave').classList.toggle('hidden', tab!=='leave');
+  document.getElementById('tab-attendance-btn').classList.toggle('active', tab==='attendance');
+  document.getElementById('tab-leave-btn').classList.toggle('active', tab==='leave');
+}
+
+/* ================= HOME / CLOCK ================= */
+async function refreshHome(){
+  const logs = await sget('attendance_logs', {});
+  const entry = logs[`${CURRENT_USER.id}_${todayStr()}`];
+  const requests = await sget('leave_requests', []);
+  const onApprovedLeave = getApprovedLeaveForDate(requests,todayStr());
+  const approvedHalfDay = onApprovedLeave && onApprovedLeave.duration==='half';
+  const balances = await sget('leave_balances', {});
+  const bal = balances[CURRENT_USER.id] || {EL:0,CL:0,SL:0};
+  document.getElementById('bal-el').textContent = bal.EL;
+  document.getElementById('bal-cl').textContent = bal.CL;
+  document.getElementById('bal-sl').textContent = bal.SL;
+
+  let hours = 0;
+  if(entry && entry.clock_in_time){
+    const outTime = entry.clock_out_time || fmtTime(new Date());
+    hours = timeDiffHours(entry.clock_in_time, outTime);
+  }
+  const pct = Math.min(hours/SHIFT_HOURS,1);
+  const circumference = 402;
+  document.getElementById('ring-progress').style.strokeDashoffset = circumference - (pct*circumference);
+  document.getElementById('ring-hours').textContent = hours.toFixed(1)+'h';
+
+  const statusLine = document.getElementById('shift-status-line');
+  const btn = document.getElementById('clock-btn');
+  if(onApprovedLeave && !approvedHalfDay && (!entry || !entry.clock_in_time)){
+    statusLine.textContent = `On approved ${onApprovedLeave.leave_type} leave today`;
+    btn.textContent = 'On Leave'; btn.dataset.mode='in'; btn.disabled=true; btn.style.opacity=0.5;
+  } else if(approvedHalfDay && (!entry || !entry.clock_in_time)){
+    statusLine.textContent = `Approved ${getHalfDayLabel(onApprovedLeave)} leave · ${onApprovedLeave.leave_type} · work ${onApprovedLeave.half_day_period==='first'?'1:30–5:00 PM':'10:00 AM–1:30 PM'}`;
+    btn.textContent = 'Clock In'; btn.dataset.mode='in'; btn.disabled=false; btn.style.opacity=1;
+  } else if(!entry || !entry.clock_in_time){
+    statusLine.textContent = 'Not clocked in today';
+    btn.textContent = 'Clock In'; btn.dataset.mode='in'; btn.disabled=false; btn.style.opacity=1;
+  } else if(!entry.clock_out_time){
+    statusLine.textContent = `Clocked in at ${entry.clock_in_time}`;
+    btn.textContent = 'Clock Out'; btn.dataset.mode='out';
+  } else {
+    statusLine.innerHTML = `Clocked in ${escapeHTML(entry.clock_in_time)} → out ${escapeHTML(entry.clock_out_time)} <span class="tag ${escapeHTML(entry.status)}" style="margin-left:6px;">${escapeHTML(statusLabel(entry.status))}</span>`;
+    btn.textContent = 'Done for today'; btn.disabled=true; btn.style.opacity=0.5;
+  }
+}
+
+const STATUS_LABELS = {
+  present:'present', late:'late', early_departure:'early departure',
+  late_early:'late & left early', half_day_present:'half-day worked', half_day_exception:'half-day request needed', pending_clarification:'pending clarification', loss_of_pay:'loss of pay'
+};
+function statusLabel(s){ return STATUS_LABELS[s] || (s||'').replace('_',' '); }
+
+function escapeHTML(value){
+  return String(value ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/\"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function timeDiffHours(t1,t2){
+  const [h1,m1]=t1.split(':').map(Number), [h2,m2]=t2.split(':').map(Number);
+  let diff=(h2*60+m2)-(h1*60+m1);
+  if(diff<0) diff += 24*60;
+  return diff/60;
+}
+
+function getApprovedLeaveForDate(requests,date){
+  return (Array.isArray(requests)?requests:[]).find(r=>r.employee_id===CURRENT_USER.id && r.status==='approved' && date>=r.start_date && date<=r.end_date) || null;
+}
+
+function getHalfDayLabel(r){
+  if(!r || r.duration!=='half') return '';
+  return r.half_day_period==='first' ? 'First half' : 'Second half';
+}
+
+function setLocationPrivacyState(active, message){
+  const el = document.getElementById('location-privacy-status');
+  const card = document.getElementById('location-privacy-card');
+  if(el) el.innerHTML = message;
+  if(card) card.style.borderLeftColor = active ? 'var(--orange)' : 'var(--green)';
+  const modalEl = document.getElementById('clock-location-privacy');
+  if(modalEl) modalEl.innerHTML = active
+    ? '<b>GPS access is ACTIVE for this one-time attendance check.</b> Your location is used only to verify attendance; the app does not continuously track you.'
+    : '<b>GPS access is OFF.</b> The one-time check has ended. There is no continuous or background location tracking.';
+}
+
+/* --- clock modal / camera / geo --- */
+async function openClockModal(){
+  const mode = document.getElementById('clock-btn').dataset.mode;
+  const offsite = document.getElementById('offsite-check').checked;
+  document.getElementById('clock-modal-title').textContent = mode==='out' ? 'Clock Out' : 'Clock In';
+  document.getElementById('clock-modal').classList.remove('hidden');
+  document.getElementById('cam-video').classList.remove('hidden');
+  document.getElementById('cam-canvas').classList.add('hidden');
+  document.getElementById('capture-btn').textContent='📸 Capture';
+  document.getElementById('capture-btn').onclick = captureSelfie;
+  capturedPhoto = null; capturedGeo = null;
+
+  const offsiteNote = document.getElementById('offsite-note').value.trim();
+  const modalNote = document.getElementById('clock-modal-note');
+  if(modalNote){ modalNote.value = offsiteNote; }
+  document.getElementById('clock-modal-note-wrap').classList.toggle('hidden', !offsite);
+
+  setLocationPrivacyState(true, 'Location access is <b>ACTIVE</b> for a one-time attendance check. The app is not continuously tracking your location.');
+  const geoStatus = document.getElementById('geo-status');
+  geoStatus.className='geo-pill off'; geoStatus.textContent='📍 Requesting one-time GPS check…';
+
+  try{
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('camera-unavailable');
+    mediaStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user'}});
+    document.getElementById('cam-video').srcObject = mediaStream;
+  }catch(e){
+    geoStatus.textContent = '⚠️ Camera unavailable — enable camera permission to continue.';
+  }
+
+  // GPS is still requested for every attendance action, including Off-site, so the
+  // app can transparently record the one-time location without using it as a gate.
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      capturedGeo = {lat:pos.coords.latitude, lng:pos.coords.longitude};
+      updateGeoPill();
+    }, err=>{
+      geoStatus.className='geo-pill out';
+      geoStatus.textContent='⚠️ GPS unavailable — enable location permission.';
+    }, {enableHighAccuracy:true, timeout:8000, maximumAge:0});
+  } else {
+    geoStatus.className='geo-pill out';
+    geoStatus.textContent='⚠️ Geolocation is not supported in this browser.';
+  }
+}
+
+function updateGeoPill(){
+  const geoStatus = document.getElementById('geo-status');
+  if(!capturedGeo){ geoStatus.textContent='📍 Locating…'; return; }
+  const dist = haversine(capturedGeo.lat,capturedGeo.lng,OFFICE_LAT,OFFICE_LNG);
+  if(dist<=OFFICE_RADIUS_M){
+    geoStatus.className='geo-pill in'; geoStatus.textContent=`✅ One-time GPS check complete · ${Math.round(dist)}m from office`;
+  } else {
+    geoStatus.className='geo-pill out'; geoStatus.textContent=`❌ One-time GPS check complete · ${Math.round(dist)}m from office`;
+  }
+}
+
+function closeClockModal(){
+  document.getElementById('clock-modal').classList.add('hidden');
+  if(mediaStream){ mediaStream.getTracks().forEach(t=>t.stop()); mediaStream=null; }
+  setLocationPrivacyState(false, 'Location access is <b>OFF</b>. The one-time GPS check has ended; there is no continuous or background location tracking.');
+}
+
+function captureSelfie(){
+  const video = document.getElementById('cam-video');
+  const canvas = document.getElementById('cam-canvas');
+  if(video.videoWidth){
+    canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video,0,0);
+    capturedPhoto = canvas.toDataURL('image/jpeg',0.5);
+  } else {
+    alert('Live camera capture is required. Please enable the camera and try again.');
+    return;
+  }
+  video.classList.add('hidden'); canvas.classList.remove('hidden');
+  document.getElementById('capture-btn').textContent='✅ Confirm & Submit';
+  document.getElementById('capture-btn').onclick = confirmClock;
+}
+
+async function confirmClock(){
+  const mode = document.getElementById('clock-btn').dataset.mode;
+  const offsite = document.getElementById('offsite-check').checked;
+  const now = new Date();
+  const timeStr = fmtTime(now);
+  const key = `${CURRENT_USER.id}_${todayStr()}`;
+  let logs = await sget('attendance_logs', {});
+  let entry = logs[key] || {employee_id:CURRENT_USER.id, date:todayStr(), clock_in_time:null, clock_out_time:null, hours_logged:0, status:'present', clarification_note:''};
+
+  if(!capturedPhoto || capturedPhoto==='placeholder'){ alert('A live selfie is required. Please capture your photo and try again.'); return; }
+  if(!capturedGeo){ alert('Location permission is required for attendance. Please enable GPS and try again.'); return; }
+
+  const requests = await sget('leave_requests', []);
+  const approvedLeave = getApprovedLeaveForDate(requests,todayStr());
+
+  if(mode==='in'){
+    if(approvedLeave && approvedLeave.duration!=='half'){ alert('You are on approved leave today. Attendance cannot be recorded.'); closeClockModal(); return; }
+
+    const finalNote = (document.getElementById('clock-modal-note')?.value || document.getElementById('offsite-note')?.value || '').trim();
+    if(offsite && !finalNote){ alert('Please add a reason for off-site work.'); return; }
+
+    const dist = haversine(capturedGeo.lat,capturedGeo.lng,OFFICE_LAT,OFFICE_LNG);
+    if(!offsite && dist>OFFICE_RADIUS_M){
+      alert(`You are outside the office radius (${Math.round(dist)}m). Select Off-site / Field Work if you are at a client site.`);
+      return;
+    }
+
+    // If a first-half leave is approved, the employee is expected to work the second half.
+    if(approvedLeave && approvedLeave.duration==='half' && approvedLeave.half_day_period==='first' && timeStr < HALF_DAY_BREAK){
+      alert('Your approved leave covers the first half. Please clock in from 1:30 PM onward.'); return;
+    }
+
+    entry.clock_in_time = timeStr;
+    entry.status = timeStr > OFFICE_START ? 'late' : 'present';
+    entry.photo = capturedPhoto;
+    entry.geo = {lat:capturedGeo.lat, lng:capturedGeo.lng, in_radius:dist<=OFFICE_RADIUS_M, offsite, note:offsite?finalNote:''};
+    if(offsite) entry.offsite_status = 'pending_review';
+  } else {
+    if(!entry.clock_in_time){ alert('Clock-in record not found.'); return; }
+    entry.clock_out_time = timeStr;
+    entry.hours_logged = timeDiffHours(entry.clock_in_time, timeStr);
+    const wasLate = entry.clock_in_time > OFFICE_START;
+    const approvedHalf = approvedLeave && approvedLeave.duration==='half';
+    const expectedHalf = approvedHalf ? HALF_DAY_HOURS : SHIFT_HOURS;
+
+    if(approvedHalf){
+      // A valid half-day is a completed ~3.5-hour half shift.
+      if(entry.hours_logged >= HALF_DAY_HOURS - 0.05){
+        entry.status = 'half_day_present';
+      } else {
+        entry.status = 'half_day_exception';
+        entry.half_day_request_needed = true;
+      }
+    } else {
+      const leftEarly = (timeStr < OFFICE_END) || (entry.hours_logged < expectedHalf);
+      if(entry.hours_logged < HALF_DAY_HOURS){
+        entry.status = 'half_day_exception';
+        entry.half_day_request_needed = true;
+      } else if(wasLate && leftEarly) entry.status = 'late_early';
+      else if(wasLate) entry.status = 'late';
+      else if(leftEarly) entry.status = 'early_departure';
+      else entry.status = 'present';
+    }
+  }
+  logs[key] = entry;
+  await sset('attendance_logs', logs);
+  closeClockModal();
+  await refreshHome();
+  await refreshCalendar();
+  if(mode==='out' && entry.status==='half_day_exception') {
+    setTimeout(()=>alert('Half-day attendance detected. Please open this date in Attendance and submit a Half-Day Leave request for Admin approval if leave should be deducted.'),120);
+  } else if(mode==='out' && (entry.status==='early_departure' || entry.status==='late_early')) {
+    setTimeout(()=>alert('Early departure recorded. Please open this date in Attendance and submit an explanation to HR if required.'),120);
+  }
+}
+
+/* ================= ATTENDANCE CALENDAR ================= */
+async function refreshCalendar(){
+  const now = new Date();
+  now.setMonth(now.getMonth()+calMonthOffset);
+  const year=now.getFullYear(), month=now.getMonth();
+  document.getElementById('cal-month-label').textContent = now.toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+
+  const headRow = document.getElementById('cal-head-row');
+  headRow.innerHTML = ['S','M','T','W','T','F','S'].map(d=>`<div class="cal-head">${d}</div>`).join('');
+
+  const logs = await sget('attendance_logs', {});
+  const leaves = await sget('leave_requests', {});
+  const leaveList = Array.isArray(leaves)?leaves:[];
+  const firstDay = new Date(year,month,1).getDay();
+  const daysInMonth = new Date(year,month+1,0).getDate();
+  const grid = document.getElementById('cal-grid');
+  let html='';
+  for(let i=0;i<firstDay;i++) html+='<div class="cal-day empty"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isHoliday = [...STATUTORY_HOLIDAYS,...FESTIVAL_HOLIDAYS].find(h=>h.date===dateStr);
+    const isLeave = leaveList.find(l=>l.employee_id===CURRENT_USER.id && l.status==='approved' && dateStr>=l.start_date && dateStr<=l.end_date);
+    const entry = logs[`${CURRENT_USER.id}_${dateStr}`];
+    let cls='none';
+    if(isHoliday) cls='holiday';
+    else if(entry) cls=entry.status;
+    else if(isLeave) cls='leave';
+    else if(new Date(dateStr) > now && dateStr!==todayStr()) cls='none';
+    html += `<div class="cal-day ${cls}" onclick="openDayModal('${dateStr}')">${d}</div>`;
+  }
+  grid.innerHTML = html;
+}
+function calShiftMonth(delta){ calMonthOffset+=delta; refreshCalendar(); }
+
+async function openDayModal(dateStr){
+  const logs = await sget('attendance_logs', {});
+  const entry = logs[`${CURRENT_USER.id}_${dateStr}`];
+  const requests = await sget('leave_requests', []);
+  const leave = (Array.isArray(requests)?requests:[]).find(r=>r.employee_id===CURRENT_USER.id && r.status==='approved' && dateStr>=r.start_date && dateStr<=r.end_date);
+  const isHoliday = [...STATUTORY_HOLIDAYS,...FESTIVAL_HOLIDAYS].find(h=>h.date===dateStr);
+  let body = `<div class="modal-handle"></div><h3>${new Date(dateStr).toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'})}</h3>`;
+
+  if(isHoliday){
+    body += `<div class="card">🎉 <b>${isHoliday.name}</b> — Company Holiday</div>`;
+  } else if(leave && leave.duration==='half'){
+    body += `<div class="card"><div class="muted">Approved leave</div><div style="font-weight:800;margin:4px 0 8px;">${leave.leave_type} · ${getHalfDayLabel(leave)}</div><span class="tag approved">0.5 day approved</span></div>`;
+    if(entry){
+      body += `<div class="card"><div class="muted">Clock In</div><div style="font-weight:700;margin-bottom:8px;">${escapeHTML(entry.clock_in_time||'—')}</div><div class="muted">Clock Out</div><div style="font-weight:700;margin-bottom:8px;">${escapeHTML(entry.clock_out_time||'—')}</div><span class="tag ${escapeHTML(entry.status)}">${escapeHTML(statusLabel(entry.status))}</span></div>`;
+    }
+  } else if(entry){
+    body += `<div class="card">
+      <div class="muted">Clock In</div><div style="font-weight:700;margin-bottom:8px;">${escapeHTML(entry.clock_in_time||'—')}</div>
+      <div class="muted">Clock Out</div><div style="font-weight:700;margin-bottom:8px;">${escapeHTML(entry.clock_out_time||'—')}</div>
+      <div class="muted">Hours</div><div style="font-weight:700;margin-bottom:8px;">${Number(entry.hours_logged||0).toFixed(1)}h</div>
+      <span class="tag ${escapeHTML(entry.status)}">${escapeHTML(statusLabel(entry.status))}</span>
+      ${entry.geo && entry.geo.offsite ? `<div class="muted" style="margin-top:8px;">🧭 Off-site: ${escapeHTML(entry.geo.note||'Client/field work')} · ${entry.offsite_status==='pending_review'?'Pending Admin review':entry.offsite_status==='approved'?'Approved':'Rejected'}</div>` : (entry.geo && entry.geo.lat ? `<div class="muted" style="margin-top:8px;">📍 ${entry.geo.in_radius?'Within':'Outside'} office radius</div>` : '')}
+      ${entry.photo && entry.photo!=='placeholder' ? `<img src="${entry.photo}" style="width:100%;border-radius:10px;margin-top:10px;">` : ''}
+    </div>`;
+    if(entry.status==='pending_clarification'){
+      body += `<div class="card"><label class="field-label">Clarification note</label><textarea id="clarify-text-pending" rows="2">${escapeHTML(entry.clarification_note||'')}</textarea><button class="btn secondary" style="margin-top:10px;" onclick="submitClarification('${dateStr}','clarify-text-pending')">Submit Explanation</button></div>`;
+    }
+    if(entry.status==='half_day_exception'){
+      body += `<div class="card"><div style="font-weight:800;margin-bottom:5px;">Half-day attendance detected</div><div class="muted" style="line-height:1.5;">You worked less than half of the scheduled day. No leave balance is deducted automatically. Submit a half-day leave request for Admin approval if this absence should be covered by leave.</div><button class="btn" style="margin-top:10px;" onclick="prepareHalfDayRequest('${dateStr}')">Request Half-Day Leave</button><label class="field-label">Explanation</label><textarea id="clarify-text-halfday" rows="2" placeholder="Explain the early departure or absence"></textarea><button class="btn secondary" style="margin-top:10px;" onclick="submitClarification('${dateStr}','clarify-text-halfday')">Submit Explanation</button></div>`;
+    }
+  } else {
+    body += `<div class="empty-state">No record for this day.</div>`;
+  }
+  document.getElementById('day-modal-content').innerHTML = body;
+  document.getElementById('day-modal').classList.remove('hidden');
+}
+
+function prepareHalfDayRequest(dateStr){
+  closeDayModal();
+  goPage('attendance');
+  switchALTab('leave');
+  document.getElementById('leave-type').value='CL';
+  document.getElementById('leave-duration').value='half';
+  document.getElementById('halfday-period-wrap').classList.remove('hidden');
+  document.getElementById('leave-start').value=dateStr;
+  document.getElementById('leave-end').value=dateStr;
+  onLeaveDurationChange();
+  syncLeaveDateFields();
+  document.getElementById('leave-reason').focus();
+}
+
+function closeDayModal(){ document.getElementById('day-modal').classList.add('hidden'); }
+
+async function submitClarification(dateStr, textareaId){
+  const logs = await sget('attendance_logs', {});
+  const key = `${CURRENT_USER.id}_${dateStr}`;
+  if(!logs[key]) return;
+  const note = (document.getElementById(textareaId)?.value || '').trim();
+  if(!note){ alert('Please provide an explanation before submitting.'); return; }
+  logs[key].clarification_note = note;
+  await sset('attendance_logs', logs);
+  alert('Clarification submitted for Admin review.');
+  closeDayModal();
+}
+
+/* ================= LEAVE ================= */
+function businessDaysBetween(start,end){
+  const holidaySet = new Set([...STATUTORY_HOLIDAYS,...FESTIVAL_HOLIDAYS].map(h=>h.date));
+  const s=new Date(start+'T00:00:00'), e=new Date(end+'T00:00:00');
+  let count=0;
+  for(let d=new Date(s); d<=e; d.setDate(d.getDate()+1)){
+    const ds=d.toISOString().slice(0,10);
+    if(d.getDay()!==0 && d.getDay()!==6 && !holidaySet.has(ds)) count++;
+  }
+  return count;
+}
+
+function updateSLProofVisibility(){
+  const type=document.getElementById('leave-type').value;
+  const duration=document.getElementById('leave-duration').value;
+  const s=document.getElementById('leave-start').value, en=document.getElementById('leave-end').value;
+  const days=s && en && en>=s ? businessDaysBetween(s,en) : 0;
+  document.getElementById('sl-proof-wrap').classList.toggle('hidden', type!=='SL' || days<=2 || duration==='half');
+}
+
+function onLeaveTypeChange(){
+  const type = document.getElementById('leave-type').value;
+  const duration = document.getElementById('leave-duration');
+  const canHalf = type==='EL' || type==='CL';
+  if(!canHalf){ duration.value='full'; duration.querySelector('option[value="half"]').disabled=true; }
+  else { duration.querySelector('option[value="half"]').disabled=false; }
+  document.getElementById('el-policy-note').classList.toggle('hidden', type!=='EL');
+  onLeaveDurationChange();
+}
+
+function onLeaveDurationChange(){
+  const type = document.getElementById('leave-type').value;
+  const duration = document.getElementById('leave-duration').value;
+  const half = duration==='half' && (type==='EL' || type==='CL');
+  document.getElementById('halfday-period-wrap').classList.toggle('hidden', !half);
+  if(half){
+    document.getElementById('leave-end').value=document.getElementById('leave-start').value;
+  }
+  updateSLProofVisibility();
+  updateLeavePreview();
+}
+
+function updateLeavePreview(){
+  const type=document.getElementById('leave-type').value;
+  const duration=document.getElementById('leave-duration').value;
+  const start=document.getElementById('leave-start').value, end=document.getElementById('leave-end').value;
+  const el=document.getElementById('leave-days-preview');
+  if(!el) return;
+  if(duration==='half' && (type==='EL'||type==='CL')){
+    el.textContent = start ? 'Leave charged: 0.5 day' : '';
+  } else if(start && end && end>=start){
+    const days=businessDaysBetween(start,end);
+    el.textContent=days ? `Leave charged: ${days} working day${days===1?'':'s'} (weekends and holidays excluded)` : 'No working days in selected range.';
+  } else el.textContent='';
+}
+
+function syncLeaveDateFields(){
+  const startEl=document.getElementById('leave-start'), endEl=document.getElementById('leave-end');
+  if(!startEl || !endEl) return;
+  const type=document.getElementById('leave-type').value;
+  const duration=document.getElementById('leave-duration').value;
+  if(duration==='half' && (type==='EL'||type==='CL')) endEl.value=startEl.value;
+  updateSLProofVisibility();
+  updateLeavePreview();
+}
+
+function handleLeaveFieldEvent(e){
+  if(e.target.id==='leave-type'){ onLeaveTypeChange(); return; }
+  if(e.target.id==='leave-duration'){ onLeaveDurationChange(); return; }
+  if(e.target.id==='leave-end' || e.target.id==='leave-start') syncLeaveDateFields();
+}
+
+document.addEventListener('change', handleLeaveFieldEvent);
+document.addEventListener('input', handleLeaveFieldEvent);
+
+async function submitLeave(){
+  const type = document.getElementById('leave-type').value;
+  const duration = document.getElementById('leave-duration').value;
+  const halfDay = duration==='half';
+  const halfPeriod = document.getElementById('halfday-period').value;
+  const start = document.getElementById('leave-start').value;
+  const end = document.getElementById('leave-end').value;
+  const reason = document.getElementById('leave-reason').value.trim();
+  const errEl = document.getElementById('leave-err');
+  errEl.classList.add('hidden');
+
+  if(!start || !end){ errEl.textContent='Select start and end dates.'; errEl.classList.remove('hidden'); return; }
+  if(end < start){ errEl.textContent='End date cannot be before start date.'; errEl.classList.remove('hidden'); return; }
+  if(!reason){ errEl.textContent='Please provide a brief reason for the request.'; errEl.classList.remove('hidden'); return; }
+  if(halfDay && !['EL','CL'].includes(type)){ errEl.textContent='Half-day leave is available for EL or CL only under current company policy.'; errEl.classList.remove('hidden'); return; }
+  if(halfDay && start!==end){ errEl.textContent='Half-day leave must be for a single working date.'; errEl.classList.remove('hidden'); return; }
+
+  const days = halfDay ? 0.5 : businessDaysBetween(start,end);
+  if(days===0){ errEl.textContent='The selected range contains no working days.'; errEl.classList.remove('hidden'); return; }
+  if(halfDay && businessDaysBetween(start,end)!==1){ errEl.textContent='The selected date is a weekend or company holiday. Choose a working day.'; errEl.classList.remove('hidden'); return; }
+
+  if(type==='EL'){
+    const startMidnight = new Date(start+'T00:00:00');
+    const hoursAhead = (startMidnight - new Date()) / 3600000;
+    if(hoursAhead < 48){ errEl.textContent='Company Policy: EL requires at least 48 hours notice.'; errEl.classList.remove('hidden'); return; }
+  }
+  if(type==='SL' && days>2){
+    const file = document.getElementById('sl-proof-file').files[0];
+    if(!file){ errEl.textContent='Company Policy: medical proof required for SL over 2 working days.'; errEl.classList.remove('hidden'); return; }
+  }
+
+  let requests = await sget('leave_requests', []);
+  if(!Array.isArray(requests)) requests=[];
+  const balances = await sget('leave_balances', {});
+  const bal = balances[CURRENT_USER.id] || {EL:0,CL:0,SL:0};
+  if(['EL','CL','SL'].includes(type) && days > Number(bal[type]||0)){
+    errEl.textContent=`Insufficient ${type} balance. Available: ${Number(bal[type]||0)} day(s).`;
+    errEl.classList.remove('hidden'); return;
+  }
+  const overlap = requests.some(r=>r.employee_id===CURRENT_USER.id && ['pending','approved'].includes(r.status) && start<=r.end_date && end>=r.start_date);
+  if(overlap){ errEl.textContent='These dates overlap an existing pending or approved leave request.'; errEl.classList.remove('hidden'); return; }
+
+  requests.push({id:'lr_'+Date.now(), employee_id:CURRENT_USER.id, leave_type:type, duration:halfDay?'half':'full', half_day_period:halfDay?halfPeriod:null, start_date:start, end_date:end, status:'pending', reason, medical_proof_url:type==='SL'&&days>2?'uploaded':null, medical_proof_name:type==='SL'&&days>2?document.getElementById('sl-proof-file').files[0].name:null, days});
+  await sset('leave_requests', requests);
+  document.getElementById('leave-reason').value='';
+  await refreshLeaveFeed();
+  alert(`${halfDay?'Half-day':'Leave'} request submitted for Admin approval.`);
+}
+
+async function refreshLeaveFeed(){
+  const requests = await sget('leave_requests', []);
+  const mine = (Array.isArray(requests)?requests:[]).filter(r=>r.employee_id===CURRENT_USER.id).reverse();
+  const el = document.getElementById('leave-status-feed');
+  if(mine.length===0){ el.innerHTML='<div class="empty-state">No leave requests yet.</div>'; return; }
+  el.innerHTML = mine.map(r=>`
+    <div class="list-item">
+      <div class="list-item-top"><span class="name">${escapeHTML(r.leave_type)}${r.duration==='half'?' · Half Day · '+(r.half_day_period==='first'?'First Half':'Second Half'):''} · ${escapeHTML(r.start_date)}${r.start_date!==r.end_date?' → '+escapeHTML(r.end_date):''}</span><span class="tag ${r.status}">${r.status}</span></div>
+      <div class="muted">${escapeHTML(r.reason||'')} · ${escapeHTML(r.days??businessDaysBetween(r.start_date,r.end_date))} day${Number(r.days||0)===1?'':'s'}</div>
+      ${r.rejection_reason?`<div class="muted" style="color:var(--red)">Reason: ${escapeHTML(r.rejection_reason)}</div>`:''}
+    </div>`).join('');
+}
+
+function contactHR(){
+  const to = 'hr@saffronads.demo';
+  const subject = 'HR Assistance';
+  // Opens the Gmail app directly if installed (falls back to Gmail's website
+  // if not) — a plain mailto: link can't target a specific mail app, since
+  // that's controlled by the phone's own default-app setting, not the page.
+  window.location.href = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(to)}&su=${encodeURIComponent(subject)}`;
+}
+
+function downloadHandbook(){
+  const byteChars = atob(HANDBOOK_PDF_B64);
+  const byteNumbers = new Array(byteChars.length);
+  for(let i=0;i<byteChars.length;i++) byteNumbers[i] = byteChars.charCodeAt(i);
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], {type:'application/pdf'});
+  const url = URL.createObjectURL(blob);
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  if(isIOS){
+    // iOS Safari often ignores the download attribute on blob URLs — open in
+    // the built-in PDF viewer instead, where the user can Share → Save to Files.
+    window.open(url, '_blank');
+  } else {
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'Saffronads360-Employee-Handbook.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+  setTimeout(()=>URL.revokeObjectURL(url), 30000);
+}
+
+/* ================= POLICY / HOLIDAYS ================= */
+function renderHolidays(){
+  document.getElementById('statutory-holidays').innerHTML = STATUTORY_HOLIDAYS.map(h=>
+    `<div class="list-item"><div class="list-item-top"><span class="name">${h.name}</span><span class="muted">${new Date(h.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</span></div></div>`).join('');
+  document.getElementById('festival-holidays').innerHTML = FESTIVAL_HOLIDAYS.map(h=>
+    `<div class="list-item"><div class="list-item-top"><span class="name">${h.name}</span><span class="muted">${new Date(h.date).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</span></div></div>`).join('');
+}
+
+const POLICIES = [
+  {t:'Leave accrual rules', b:'EL, CL, and SL balances are set and adjusted by Admin. Contact HR for your current accrual schedule.'},
+  {t:'EL notice period', b:'<span class="tag policy">Company Policy</span> Earned Leave must be applied at least 48 hours in advance of the start date.'},
+  {t:'Sick leave medical proof', b:'<span class="tag policy">Company Policy</span> Medical proof is required for Sick Leave requests spanning more than 2 days.'},
+  {t:'Late clock-in grace period', b:'Office hours are 10:00 AM – 5:00 PM. Clock-ins after 10:00 AM are marked Late.'},
+  {t:'Half-day leave', b:'<span class="tag policy">Company Policy</span> Half-day leave is available for EL or CL. Select First Half (10:00 AM – 1:30 PM) or Second Half (1:30 PM – 5:00 PM). An approved half-day consumes 0.5 day from the selected leave balance.'},
+  {t:'Early departure & half-day exceptions', b:'Leaving early does not automatically deduct leave. If an employee works less than 3.5 hours, the app flags a Half-day Request Needed. The employee must submit a half-day leave request or explanation, and Admin decides the outcome.'},
+  {t:'Loss of Pay (LOP) conditions', b:'Unexplained absences without an approved leave or accepted clarification are marked Loss of Pay.'},
+];
+function renderPolicyAccordion(){
+  document.getElementById('policy-accordion').innerHTML = POLICIES.map((p,i)=>`
+    <div class="accordion-item">
+      <div class="accordion-head" onclick="toggleAccordion(${i})"><span>${p.t}</span><span id="acc-icon-${i}">+</span></div>
+      <div class="accordion-body" id="acc-body-${i}">${p.b}</div>
+    </div>`).join('');
+}
+function toggleAccordion(i){
+  const body = document.getElementById('acc-body-'+i);
+  const icon = document.getElementById('acc-icon-'+i);
+  const open = body.classList.toggle('open');
+  icon.textContent = open ? '−' : '+';
+}
+
+/* ================= ADMIN ================= */
+async function refreshAdmin(){
+  const employees = await sget('employees', []);
+  const requests = await sget('leave_requests', []);
+  const logs = await sget('attendance_logs', {});
+  const balances = await sget('leave_balances', {});
+
+  // approvals: pending leave + pending clarifications
+  const pendingLeave = (Array.isArray(requests)?requests:[]).filter(r=>r.status==='pending');
+  const pendingClarifications = Object.values(logs).filter(l=>l.status==='pending_clarification');
+  const pendingOffsite = Object.values(logs).filter(l=>l.geo && l.geo.offsite && l.offsite_status==='pending_review');
+  document.getElementById('approval-count').textContent = pendingLeave.length + pendingClarifications.length + pendingOffsite.length;
+
+  let approvalsHtml='';
+  if(pendingLeave.length===0 && pendingClarifications.length===0 && pendingOffsite.length===0){
+    approvalsHtml = '<div class="empty-state">No pending approvals 🎉</div>';
+  }
+  pendingLeave.forEach(r=>{
+    const emp = employees.find(e=>e.id===r.employee_id);
+    approvalsHtml += `<div class="list-item">
+      <div class="list-item-top"><span class="name">${escapeHTML(emp?emp.name:'Unknown')} — ${escapeHTML(r.leave_type)}</span><span class="tag pending">pending</span></div>
+      <div class="muted">${escapeHTML(r.start_date)} → ${escapeHTML(r.end_date)} · ${r.duration==='half'?'0.5 day · '+(r.half_day_period==='first'?'First Half':'Second Half')+' · ':''}${escapeHTML(r.reason||'')}</div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn small secondary" onclick="approveLeave('${r.id}')">Approve</button>
+        <button class="btn small danger" onclick="rejectLeave('${r.id}')">Reject</button>
+      </div></div>`;
+  });
+  pendingOffsite.forEach(l=>{
+    const emp = employees.find(e=>e.id===l.employee_id);
+    approvalsHtml += `<div class="list-item">
+      <div class="list-item-top"><span class="name">${escapeHTML(emp?emp.name:'Unknown')} — Off-site attendance</span><span class="tag pending">pending review</span></div>
+      <div class="muted">${escapeHTML(l.date)} · ${escapeHTML(l.clock_in_time||'—')} · ${escapeHTML(l.geo?.note||'No reason provided')}</div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn small secondary" onclick="resolveOffsite('${l.employee_id}','${l.date}','approved')">Approve</button>
+        <button class="btn small danger" onclick="resolveOffsite('${l.employee_id}','${l.date}','rejected')">Reject</button>
+      </div></div>`;
+  });
+  pendingClarifications.forEach(l=>{
+    const emp = employees.find(e=>e.id===l.employee_id);
+    approvalsHtml += `<div class="list-item">
+      <div class="list-item-top"><span class="name">${escapeHTML(emp?emp.name:'Unknown')} — Clarification</span><span class="tag pending_clarification">${l.date}</span></div>
+      <div class="muted">${l.clarification_note ? `"${escapeHTML(l.clarification_note)}"` : 'No explanation submitted yet.'}</div>
+      <div style="display:flex;gap:8px;margin-top:8px;">
+        <button class="btn small secondary" onclick="resolveClarification('${l.employee_id}','${l.date}','present')">Mark Present</button>
+        <button class="btn small danger" onclick="resolveClarification('${l.employee_id}','${l.date}','loss_of_pay')">Mark LOP</button>
+      </div></div>`;
+  });
+  document.getElementById('approvals-list').innerHTML = approvalsHtml;
+
+  document.getElementById('employee-directory').innerHTML = employees.map(e=>`
+    <div class="list-item"><div class="list-item-top"><span class="name">${escapeHTML(e.name)}</span><span class="tag ${e.status==='active'?'approved':'rejected'}">${escapeHTML(e.status)}</span></div>
+    <div class="muted">${escapeHTML(e.employee_code||'—')} · ${escapeHTML(e.email)} · ${escapeHTML(e.department||'—')} · ${escapeHTML(e.designation||'—')} · joined ${escapeHTML(e.joining_date)}</div>
+    <button class="btn ghost small" style="margin-top:8px;" onclick="toggleEmployeeStatus('${e.id}')">${e.status==='active'?'Deactivate':'Reactivate'}</button>
+    </div>`).join('');
+
+  const adjSelect = document.getElementById('adj-employee');
+  adjSelect.innerHTML = employees.map(e=>`<option value="${escapeHTML(e.id)}">${escapeHTML(e.name)}</option>`).join('');
+  adjSelect.onchange = ()=>{
+    const b = balances[adjSelect.value]||{EL:0,CL:0,SL:0};
+    document.getElementById('adj-el').value=b.EL; document.getElementById('adj-cl').value=b.CL; document.getElementById('adj-sl').value=b.SL;
+  };
+  if(employees.length) adjSelect.onchange();
+
+}
+
+async function addEmployee(){
+  const name = document.getElementById('new-emp-name').value.trim();
+  const code = document.getElementById('new-emp-code').value.trim().toUpperCase();
+  const email = document.getElementById('new-emp-email').value.trim().toLowerCase();
+  const pass = document.getElementById('new-emp-pass').value;
+  const department = document.getElementById('new-emp-dept').value.trim();
+  const designation = document.getElementById('new-emp-designation').value.trim();
+  const role = document.getElementById('new-emp-role').value;
+  const errEl = document.getElementById('new-emp-err');
+  errEl.classList.add('hidden');
+  if(!CURRENT_USER || CURRENT_USER.role!=='admin'){ errEl.textContent='Only an Admin can create accounts.'; errEl.classList.remove('hidden'); return; }
+  if(!name || !code || !email || !pass || !department || !designation){ errEl.textContent='Complete all employee details.'; errEl.classList.remove('hidden'); return; }
+  if(pass.length < 8){ errEl.textContent='Temporary password must be at least 8 characters.'; errEl.classList.remove('hidden'); return; }
+  let employees = await sget('employees', []);
+  if(employees.find(e=>e.email===email || e.employee_code===code)){ errEl.textContent='An account with this email or Employee ID already exists.'; errEl.classList.remove('hidden'); return; }
+  const newEmp = {id:'u_'+Date.now(), employee_code:code, name, email, password:pass, role, department, designation, joining_date:todayStr(), status:'active', must_change_password:true};
+  employees.push(newEmp);
+  await sset('employees', employees);
+  let balances = await sget('leave_balances', {});
+  balances[newEmp.id] = {EL:0, CL:0, SL:0};
+  await sset('leave_balances', balances);
+  ['new-emp-name','new-emp-code','new-emp-email','new-emp-pass','new-emp-dept','new-emp-designation'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('new-emp-role').value='employee';
+  await refreshAdmin();
+  alert(`${name} added. Share their login details securely and require a password change.`);
+}
+
+async function toggleEmployeeStatus(empId){
+  if(!CURRENT_USER || CURRENT_USER.role!=='admin'){ alert('Only an Admin can change employee status.'); return; }
+  let employees = await sget('employees', []);
+  const emp = employees.find(e=>e.id===empId);
+  if(!emp) return;
+  if(emp.status==='active'){
+    const confirmed = window.confirm(`Are you sure you want to deactivate ${emp.name}?\n\nThey will no longer be able to log in until reactivated.`);
+    if(!confirmed) return;
+  } else {
+    const confirmed = window.confirm(`Reactivate ${emp.name}?\n\nThey will regain access to the employee portal.`);
+    if(!confirmed) return;
+  }
+  emp.status = emp.status==='active' ? 'inactive' : 'active';
+  await sset('employees', employees);
+  await refreshAdmin();
+}
+
+async function approveLeave(id){ if(!CURRENT_USER || CURRENT_USER.role!=='admin') return; await setLeaveStatus(id,'approved'); }
+async function rejectLeave(id){
+  if(!CURRENT_USER || CURRENT_USER.role!=='admin') return;
+  const reason = prompt('Rejection reason (required):');
+  if(reason===null || !reason.trim()){ alert('A rejection reason is required.'); return; }
+  await setLeaveStatus(id,'rejected',reason.trim());
+}
+async function setLeaveStatus(id,status,rejection_reason){
+  let requests = await sget('leave_requests', []);
+  const idx = requests.findIndex(r=>r.id===id);
+  if(idx===-1) return;
+  const req = requests[idx];
+  if(req.status!=='pending'){ alert('This leave request has already been processed.'); return; }
+  if(status==='approved'){
+    const balances = await sget('leave_balances', {});
+    const bal = balances[req.employee_id] || {EL:0,CL:0,SL:0};
+    const days = req.days || businessDaysBetween(req.start_date, req.end_date);
+    if(['EL','CL','SL'].includes(req.leave_type)){
+      const available = Number(bal[req.leave_type]||0);
+      if(days>available){ alert(`Cannot approve: insufficient ${req.leave_type} balance. Available: ${available} day(s).`); return; }
+      bal[req.leave_type] = available - days;
+      balances[req.employee_id] = bal;
+      await sset('leave_balances', balances);
+    }
+    req.days = days;
+    req.balance_deducted = true;
+  }
+  req.status=status;
+  if(status==='rejected') req.rejection_reason=rejection_reason||'';
+  req.processed_at = new Date().toISOString();
+  await sset('leave_requests', requests);
+  await refreshAdmin(); await refreshCalendar(); await refreshHome(); await refreshLeaveFeed();
+}
+async function resolveOffsite(empId,date,status){
+  if(!CURRENT_USER || CURRENT_USER.role!=='admin') return;
+  let logs=await sget('attendance_logs',{});
+  const key=`${empId}_${date}`;
+  if(logs[key] && logs[key].geo && logs[key].geo.offsite){
+    logs[key].offsite_status=status;
+    if(status==='rejected') logs[key].status='pending_clarification';
+  }
+  await sset('attendance_logs',logs);
+  await refreshAdmin(); await refreshCalendar();
+}
+
+async function resolveClarification(empId,date,newStatus){
+  if(!CURRENT_USER || CURRENT_USER.role!=='admin') return;
+  let logs = await sget('attendance_logs', {});
+  const key = `${empId}_${date}`;
+  if(logs[key]){ logs[key].status = newStatus; logs[key].clarification_note += ' [Resolved by admin]'; }
+  await sset('attendance_logs', logs);
+  await refreshAdmin();
+}
+async function adjustBalance(){
+  if(!CURRENT_USER || CURRENT_USER.role!=='admin') return;
+  let balances = await sget('leave_balances', {});
+  const id = document.getElementById('adj-employee').value;
+  balances[id] = {EL:Number(document.getElementById('adj-el').value)||0, CL:Number(document.getElementById('adj-cl').value)||0, SL:Number(document.getElementById('adj-sl').value)||0};
+  await sset('leave_balances', balances);
+  alert('Balances updated.');
+}
+
+function csvSafeCell(value){
+  let text=String(value??'');
+  if(/^[=+\-@]/.test(text)) text="'"+text;
+  return `"${text.replace(/"/g,'""')}"`;
+}
+function downloadCSV(filename, rows){
+  const csv = rows.map(r=>r.map(csvSafeCell).join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function exportFormQ(){
+  const employees = await sget('employees', []);
+  const logs = await sget('attendance_logs', {});
+  const rows = [['Employee','Date','Clock In','Clock Out','Hours','Status']];
+  Object.values(logs).forEach(l=>{
+    const emp = employees.find(e=>e.id===l.employee_id);
+    rows.push([emp?emp.name:l.employee_id, l.date, l.clock_in_time, l.clock_out_time, l.hours_logged, l.status]);
+  });
+  downloadCSV('form-q-attendance.csv', rows);
+}
+async function exportFormO(){
+  const employees = await sget('employees', []);
+  const requests = await sget('leave_requests', []);
+  const balances = await sget('leave_balances', {});
+  const rows = [['Employee','Leave Type','Duration','Half-Day Period','Start','End','Days Charged','Status','EL Bal','CL Bal','SL Bal']];
+  (Array.isArray(requests)?requests:[]).forEach(r=>{
+    const emp = employees.find(e=>e.id===r.employee_id);
+    const b = balances[r.employee_id]||{};
+    rows.push([emp?emp.name:r.employee_id, r.leave_type, r.duration==='half'?'Half Day':'Full Day', r.duration==='half'?(r.half_day_period==='first'?'First Half':'Second Half'):'', r.start_date, r.end_date, r.days??businessDaysBetween(r.start_date,r.end_date), r.status, b.EL, b.CL, b.SL]);
+  });
+  downloadCSV('form-o-leave-book.csv', rows);
+}
+
+/* ================= INIT ================= */
+(async function init(){
+  await seedDemoData();
+  // Always show the login screen when the HTML file is opened.
+  // Do not restore a previous Admin/Employee session automatically.
+  CURRENT_USER = null;
+  try { await sset('session_user_id', null); } catch(e) {}
+  document.getElementById('screen-main').classList.add('hidden');
+  document.getElementById('screen-auth').classList.remove('hidden');
+})();
+</script>
+</body>
+</html>
